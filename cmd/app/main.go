@@ -10,19 +10,19 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/rzfhlv/gin-example/config"
+	"github.com/rzfhlv/gin-example/internal"
+	"github.com/rzfhlv/gin-example/routes"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
-	_ = config.Init()
+	cfg := config.Init()
 
-	router := gin.Default()
-	router.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "Welcome Gin Server")
-	})
+	svc := internal.New(cfg)
+
+	router := routes.ListRoutes(svc)
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%s", os.Getenv("APP_PORT")),
