@@ -1,7 +1,7 @@
 package repository
 
 var (
-	CreateMemberQuery = `INSERT into members
+	CreateMemberQuery = `INSERT INTO members
 		(first_name, last_name, email, password, created_at)
 		VALUES (?, ?, ?, ?, ?);`
 	GetMemberQuery = `SELECT id, first_name,
