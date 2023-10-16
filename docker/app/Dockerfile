@@ -10,10 +10,10 @@ LABEL maintainer="Reza Fahlevi <rzfhlv.me@gmail.com>"
 
 # Install git.
 # Git is required for fetching the dependencies.
-RUN apk update && apk add --no-cache git
+RUN apk update && apk add --no-cache git gcc musl-dev
 
 # Set the current working directory inside the container 
-WORKDIR /app
+WORKDIR /gin-example
 
 # Copy go mod and sum files 
 COPY go.mod go.sum ./
@@ -25,24 +25,30 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/web
+RUN go build -ldflags ' -w -s' -a -o ./bin/app ./cmd/app \
+    && go build -ldflags '-w -s' -a -o ./bin/migrate ./cmd/migrate
 
 # Start a new stage from scratch
 FROM alpine:latest
 
-RUN apk --no-cache add ca-certificates
+RUN apk update && apk add --no-cache bash mysql-client
 
-RUN adduser -D gin
-USER gin
+# RUN adduser -D gin
+# USER gin
 
-WORKDIR /app/
+WORKDIR /gin-example/
 
 # Copy the Pre-built binary file from the previous stage. Observe we also copied the .env file
-COPY --from=builder /app/main .
-COPY --from=builder /app/.env .    
+COPY --from=builder /gin-example/bin/app /gin-example/
+COPY --from=builder /gin-example/bin/migrate /gin-example/
+COPY --from=builder /gin-example/database/migrations /gin-example/database/migrations
+COPY --from=builder /gin-example/.env /gin-example/
+
+COPY --from=builder /gin-example/docker/app/bin /usr/local/bin/gin-example/
+RUN chmod +x /usr/local/bin/gin-example/*
 
 # Expose port to the outside world
 EXPOSE $APP_PORT
 
 #Command to run the executable
-CMD ["./main"]
+CMD ["/gin-example/app"]

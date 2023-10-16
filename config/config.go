@@ -5,7 +5,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
-	"github.com/rzfhlv/gin-example/config/mysql"
+	aMySQL "github.com/rzfhlv/gin-example/adapter/mysql"
 )
 
 type Config struct {
@@ -18,7 +18,7 @@ func Init() *Config {
 		log.Fatalf("Failed Load Env %v", err.Error())
 	}
 
-	mySql, err := mysql.NewMySQL()
+	mySql, err := aMySQL.New()
 	if err != nil {
 		log.Fatalf("Failed to MySQL connection %v", err.Error())
 	}

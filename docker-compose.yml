@@ -4,14 +4,16 @@ services:
   app:
     container_name: gin-app
     build:
-      dockerfile: Dockerfile
+      dockerfile: ./docker/app/Dockerfile
       context: .
       args:
        - APP_PORT="${APP_PORT}"
+    env_file:
+      - ./.env
     ports:
       - "${APP_PORT}:${APP_PORT}"
     environment:
-      DB_HOST: mysql
+      DB_HOST: db
       DB_DRIVER: mysql
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
@@ -19,15 +21,17 @@ services:
       DB_NAME: ${DB_NAME}
     restart: on-failure
     depends_on:
-      - mysql
+      - db
+    command: ["/usr/local/bin/gin-example/wait-for-mysql.sh", "db", "/usr/local/bin/gin-example/init.sh"]
+    volumes:
+      - ./database/migrations:/gin-example/database/migrations
     networks:
       - gin
   
-  mysql:
+  db:
     container_name: gin-db
-    image: mysql:8
+    build: ./docker/mariadb/
     environment:
-      MYSQL_ROOT_HOST: "%"
       MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
       MYSQL_DATABASE: "${DB_NAME}"
       MYSQL_USER: "${DB_USER}"
@@ -36,7 +40,7 @@ services:
     volumes:
       - ~/data/gin:/var/lib/mysql
     ports:
-      - "${DB_PORT}:3306"
+      - "${DB_PORT_CLIENT}:${DB_PORT_CLIENT}"
     networks:
       - gin
 
