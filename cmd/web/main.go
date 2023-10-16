@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -10,16 +11,19 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rzfhlv/gin-example/config"
 )
 
 func main() {
+	_ = config.Init()
+
 	router := gin.Default()
 	router.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "Welcome Gin Server")
 	})
 
 	srv := &http.Server{
-		Addr:    ":8899",
+		Addr:    fmt.Sprintf(":%s", os.Getenv("APP_PORT")),
 		Handler: router,
 	}
 
@@ -37,12 +41,12 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal("Server Shutdown:", err)
+		log.Fatal("Server Shutdown Error:", err)
 	}
 
 	select {
 	case <-ctx.Done():
-		log.Println("timeout of 5 seconds.")
+		log.Println("Timeout of 5 Seconds.")
 	}
-	log.Println("Server exiting")
+	log.Println("Server Exiting")
 }

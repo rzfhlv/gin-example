@@ -1,0 +1,45 @@
+version: '3.9'
+
+services:
+  app:
+    container_name: gin-app
+    build:
+      dockerfile: Dockerfile
+      context: .
+      args:
+       - APP_PORT="${APP_PORT}"
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    environment:
+      DB_HOST: mysql
+      DB_DRIVER: mysql
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME}
+    restart: on-failure
+    depends_on:
+      - mysql
+    networks:
+      - gin
+  
+  mysql:
+    container_name: gin-db
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_DATABASE: "${DB_NAME}"
+      MYSQL_USER: "${DB_USER}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+    restart: always
+    volumes:
+      - ~/data/gin:/var/lib/mysql
+    ports:
+      - "${DB_PORT}:3306"
+    networks:
+      - gin
+
+networks:
+  gin:
+    driver: bridge
