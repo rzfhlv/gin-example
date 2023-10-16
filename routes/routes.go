@@ -5,6 +5,7 @@ import (
 	"github.com/rzfhlv/gin-example/internal"
 	"github.com/rzfhlv/gin-example/internal/modules/gathering"
 	healthcheck "github.com/rzfhlv/gin-example/internal/modules/health-check"
+	"github.com/rzfhlv/gin-example/internal/modules/invitation"
 	"github.com/rzfhlv/gin-example/internal/modules/member"
 )
 
@@ -16,5 +17,6 @@ func ListRoutes(svc *internal.Service) (g *gin.Engine) {
 	healthcheck.Mount(route, svc.HealthCheck.Handler)
 	member.Mount(route, svc.Member.Handler)
 	gathering.Mount(route, svc.Gathering.Handler)
+	invitation.Mount(route, svc.Invitation.Handler)
 	return
 }

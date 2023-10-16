@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS invitations (
     id BIGINT UNSIGNED AUTO_INCREMENT,
     member_id BIGINT UNSIGNED,
     gathering_id BIGINT UNSIGNED,
-    status ENUM('pending', 'accept', 'reject'),
+    status ENUM('pending', 'accept', 'reject') DEFAULT 'pending' NOT NULL,
 
     PRIMARY KEY (id),
     FOREIGN KEY (member_id) REFERENCES members(id),
