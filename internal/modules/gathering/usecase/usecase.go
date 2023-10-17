@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"time"
 
 	"github.com/rzfhlv/gin-example/internal/modules/gathering/model"
 	"github.com/rzfhlv/gin-example/internal/modules/gathering/repository"
@@ -27,6 +28,11 @@ func New(repo repository.IRepository) IUsecase {
 }
 
 func (u *Usecase) Create(ctx context.Context, gatheringPayload model.Gathering) (gathering model.Gathering, err error) {
+	scheduleAt, err := time.Parse("2006-01-02 03:04:05", gatheringPayload.ScheduleAt)
+	if err != nil {
+		return
+	}
+	gatheringPayload.ScheduleAtDB = scheduleAt
 	result, err := u.repo.Create(ctx, gatheringPayload)
 	if err != nil {
 		return

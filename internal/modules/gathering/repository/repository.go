@@ -31,7 +31,7 @@ func New(db *sqlx.DB) IRepository {
 func (r *Repository) Create(ctx context.Context, gathering model.Gathering) (result sql.Result, err error) {
 	result, err = r.db.Exec(CreateGatheringQuery,
 		gathering.Creator, gathering.MemberID, gathering.Type,
-		gathering.Name, gathering.Location, gathering.ScheduleAt)
+		gathering.Name, gathering.Location, gathering.ScheduleAtDB)
 	return
 }
 
