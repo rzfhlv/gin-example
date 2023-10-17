@@ -6,8 +6,10 @@ var (
 		VALUES (?, ?, ?, ?, ?, ?);`
 	GetGatheringQuery = `SELECT id, creator, member_id, type,
 		name, location, schedule_at
-		FROM gatherings;`
+		FROM gatherings ORDER BY id DESC LIMIT ? OFFSET ?;`
 	GetGatheringByIDQuery = `SELECT id, creator, member_id,
 		type, name, location, schedule_at
 		FROM gatherings WHERE id = ?;`
+	CountGatheringQuery = `SELECT count(*)
+		FROM gatherings;`
 )

@@ -5,13 +5,14 @@ import (
 
 	"github.com/rzfhlv/gin-example/internal/modules/invitation/model"
 	"github.com/rzfhlv/gin-example/internal/modules/invitation/repository"
+	"github.com/rzfhlv/gin-example/pkg/param"
 )
 
 type IUsecase interface {
-	Create(ctx context.Context, invitation model.Invitation) (result model.Invitation, err error)
-	Get(ctx context.Context) (result []model.Invitation, err error)
-	GetByID(ctx context.Context, id int64) (result model.Invitation, err error)
-	Update(ctx context.Context, invitation model.Invitation, id int64) (result model.Invitation, err error)
+	Create(ctx context.Context, invitationPayload model.Invitation) (invitation model.Invitation, err error)
+	Get(ctx context.Context, param param.Param) (invitations []model.Invitation, total int64, err error)
+	GetByID(ctx context.Context, id int64) (invitation model.Invitation, err error)
+	Update(ctx context.Context, invitationPayload model.Invitation, id int64) (invitation model.Invitation, err error)
 	Delete(ctx context.Context) (err error)
 }
 
@@ -25,53 +26,61 @@ func New(repo repository.IRepository) IUsecase {
 	}
 }
 
-func (u *Usecase) Create(ctx context.Context, invitation model.Invitation) (result model.Invitation, err error) {
-	data, err := u.repo.Create(ctx, invitation)
+func (u *Usecase) Create(ctx context.Context, invitationPayload model.Invitation) (invitation model.Invitation, err error) {
+	result, err := u.repo.Create(ctx, invitationPayload)
 	if err != nil {
 		return
 	}
 
-	invitation.ID, err = data.LastInsertId()
+	invitationPayload.ID, err = result.LastInsertId()
 	if err != nil {
 		return
 	}
 
-	result = invitation
+	invitation = invitationPayload
 	return
 }
 
-func (u *Usecase) Get(ctx context.Context) (result []model.Invitation, err error) {
-	result, err = u.repo.Get(ctx)
-	return
-}
-
-func (u *Usecase) GetByID(ctx context.Context, id int64) (result model.Invitation, err error) {
-	result, err = u.repo.GetByID(ctx, id)
-	return
-}
-
-func (u *Usecase) Update(ctx context.Context, invitation model.Invitation, id int64) (result model.Invitation, err error) {
-	data, err := u.repo.Update(ctx, invitation, id)
+func (u *Usecase) Get(ctx context.Context, param param.Param) (invitations []model.Invitation, total int64, err error) {
+	invitations, err = u.repo.Get(ctx, param)
 	if err != nil {
 		return
 	}
 
-	invitation.ID, err = data.LastInsertId()
+	if len(invitations) < 1 {
+		invitations = []model.Invitation{}
+	}
+	total, err = u.repo.Count(ctx)
+	return
+}
+
+func (u *Usecase) GetByID(ctx context.Context, id int64) (invitation model.Invitation, err error) {
+	invitation, err = u.repo.GetByID(ctx, id)
+	return
+}
+
+func (u *Usecase) Update(ctx context.Context, invitationPayload model.Invitation, id int64) (invitation model.Invitation, err error) {
+	data, err := u.repo.Update(ctx, invitationPayload, id)
 	if err != nil {
 		return
 	}
 
-	if invitation.Status == "accept" {
+	invitationPayload.ID, err = data.LastInsertId()
+	if err != nil {
+		return
+	}
+
+	if invitationPayload.Status == "accept" {
 		attendee := model.Attendee{}
-		attendee.MemberID = invitation.MemberID
-		attendee.GatheringID = invitation.GatheringID
+		attendee.MemberID = invitationPayload.MemberID
+		attendee.GatheringID = invitationPayload.GatheringID
 		err = u.repo.CreateAttendee(ctx, attendee)
 		if err != nil {
 			return
 		}
 	}
 
-	result = invitation
+	invitation = invitationPayload
 	return
 }
 
