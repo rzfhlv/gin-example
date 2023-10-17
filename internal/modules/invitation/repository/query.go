@@ -6,7 +6,7 @@ var (
 		VALUES (?, ?, ?);`
 	GetInvitationQuery = `SELECT id, member_id,
 		gathering_id, status
-		FROM invitations;`
+		FROM invitations ORDER BY id DESC LIMIT ? OFFSET ?;`
 	GetInvitationByIDQuery = `SELECT id, member_id,
 		gathering_id, status
 		FROM invitations WHERE id = ?;`
@@ -16,4 +16,6 @@ var (
 	CreateAttendeeQuery = `INSERT INTO attendee
 		(member_id, gathering_id)
 		VALUES (?, ?);`
+	CountInvitationQuery = `SELECT count(*)
+		FROM invitations;`
 )

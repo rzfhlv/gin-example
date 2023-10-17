@@ -5,11 +5,12 @@ import (
 
 	"github.com/rzfhlv/gin-example/internal/modules/gathering/model"
 	"github.com/rzfhlv/gin-example/internal/modules/gathering/repository"
+	"github.com/rzfhlv/gin-example/pkg/param"
 )
 
 type IUsecase interface {
 	Create(ctx context.Context, gathering model.Gathering) (result model.Gathering, err error)
-	Get(ctx context.Context) (result []model.Gathering, err error)
+	Get(ctx context.Context, param param.Param) (result []model.Gathering, total int64, err error)
 	GetByID(ctx context.Context, id int64) (result model.Gathering, err error)
 	Update(ctx context.Context) (err error)
 	Delete(ctx context.Context) (err error)
@@ -25,28 +26,36 @@ func New(repo repository.IRepository) IUsecase {
 	}
 }
 
-func (u *Usecase) Create(ctx context.Context, gathering model.Gathering) (result model.Gathering, err error) {
-	data, err := u.repo.Create(ctx, gathering)
+func (u *Usecase) Create(ctx context.Context, gatheringPayload model.Gathering) (gathering model.Gathering, err error) {
+	result, err := u.repo.Create(ctx, gatheringPayload)
 	if err != nil {
 		return
 	}
 
-	gathering.ID, err = data.LastInsertId()
+	gatheringPayload.ID, err = result.LastInsertId()
 	if err != nil {
 		return
 	}
 
-	result = gathering
+	gathering = gatheringPayload
 	return
 }
 
-func (u *Usecase) Get(ctx context.Context) (result []model.Gathering, err error) {
-	result, err = u.repo.Get(ctx)
+func (u *Usecase) Get(ctx context.Context, param param.Param) (gatherings []model.Gathering, total int64, err error) {
+	gatherings, err = u.repo.Get(ctx, param)
+	if err != nil {
+		return
+	}
+
+	if len(gatherings) < 1 {
+		gatherings = []model.Gathering{}
+	}
+	total, err = u.repo.Count(ctx)
 	return
 }
 
-func (u *Usecase) GetByID(ctx context.Context, id int64) (result model.Gathering, err error) {
-	result, err = u.repo.GetByID(ctx, id)
+func (u *Usecase) GetByID(ctx context.Context, id int64) (gathering model.Gathering, err error) {
+	gathering, err = u.repo.GetByID(ctx, id)
 	return
 }
 

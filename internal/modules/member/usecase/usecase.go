@@ -6,12 +6,13 @@ import (
 	"github.com/rzfhlv/gin-example/internal/modules/member/model"
 	"github.com/rzfhlv/gin-example/internal/modules/member/repository"
 	"github.com/rzfhlv/gin-example/pkg/hasher"
+	"github.com/rzfhlv/gin-example/pkg/param"
 )
 
 type IUsecase interface {
-	Create(ctx context.Context, member model.Member) (result model.Member, err error)
-	Get(ctx context.Context) (result []model.Member, err error)
-	GetByID(ctx context.Context, id int64) (result model.Member, err error)
+	Create(ctx context.Context, memberPayload model.Member) (member model.Member, err error)
+	Get(ctx context.Context, param param.Param) (members []model.Member, total int64, err error)
+	GetByID(ctx context.Context, id int64) (member model.Member, err error)
 	Update(ctx context.Context) (err error)
 	Delete(ctx context.Context) (err error)
 }
@@ -28,34 +29,42 @@ func New(repo repository.IRepository, hasher hasher.HashPassword) IUsecase {
 	}
 }
 
-func (u *Usecase) Create(ctx context.Context, member model.Member) (result model.Member, err error) {
-	hashPassword, err := u.hasher.HashedPassword(member.Password)
+func (u *Usecase) Create(ctx context.Context, memberPayload model.Member) (member model.Member, err error) {
+	hashPassword, err := u.hasher.HashedPassword(memberPayload.Password)
 	if err != nil {
 		return
 	}
-	member.Password = hashPassword
+	memberPayload.Password = hashPassword
 
-	data, err := u.repo.Create(ctx, member)
-	if err != nil {
-		return
-	}
-
-	member.ID, err = data.LastInsertId()
+	data, err := u.repo.Create(ctx, memberPayload)
 	if err != nil {
 		return
 	}
 
-	result = member
+	memberPayload.ID, err = data.LastInsertId()
+	if err != nil {
+		return
+	}
+
+	member = memberPayload
 	return
 }
 
-func (u *Usecase) Get(ctx context.Context) (result []model.Member, err error) {
-	result, err = u.repo.Get(ctx)
+func (u *Usecase) Get(ctx context.Context, param param.Param) (members []model.Member, total int64, err error) {
+	members, err = u.repo.Get(ctx, param)
+	if err != nil {
+		return
+	}
+
+	if len(members) < 1 {
+		members = []model.Member{}
+	}
+	total, err = u.repo.Count(ctx)
 	return
 }
 
-func (u *Usecase) GetByID(ctx context.Context, id int64) (result model.Member, err error) {
-	result, err = u.repo.GetByID(ctx, id)
+func (u *Usecase) GetByID(ctx context.Context, id int64) (member model.Member, err error) {
+	member, err = u.repo.GetByID(ctx, id)
 	return
 }
 
