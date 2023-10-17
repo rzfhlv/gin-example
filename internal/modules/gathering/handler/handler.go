@@ -55,7 +55,7 @@ func (h *Handler) Get(g *gin.Context) {
 	ctx := g.Request.Context()
 	queryParam := param.Param{}
 	queryParam.Limit = param.DEFAULTLIMIT
-	queryParam.Offset = param.DEFAULTPAGE
+	queryParam.Page = param.DEFAULTPAGE
 
 	err := g.ShouldBind(&queryParam)
 	if err != nil {
@@ -68,6 +68,7 @@ func (h *Handler) Get(g *gin.Context) {
 	if err != nil {
 		log.Printf("Error Get Gathering, %v", err.Error())
 		g.JSON(http.StatusInternalServerError, response.Set(message.ERROR, message.SOMETHINGWENTWRONG, nil, nil))
+		return
 	}
 	queryParam.Total = total
 	meta := response.BuildMeta(queryParam, len(gatherings))

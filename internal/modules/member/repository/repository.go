@@ -34,7 +34,7 @@ func (r *Repository) Create(ctx context.Context, member model.Member) (result sq
 }
 
 func (r *Repository) Get(ctx context.Context, param param.Param) (members []model.Member, err error) {
-	err = r.db.Select(&members, GetMemberQuery, param.Limit, param.Offset)
+	err = r.db.Select(&members, GetMemberQuery, param.Limit, param.CalculateOffset())
 	return
 }
 
