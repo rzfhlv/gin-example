@@ -14,7 +14,6 @@ type IRepository interface {
 	Get(ctx context.Context, param param.Param) (invitations []model.Invitation, err error)
 	GetByID(ctx context.Context, id int64) (invitation model.Invitation, err error)
 	Update(ctx context.Context, invitation model.Invitation, id int64) (result sql.Result, err error)
-	Delete(ctx context.Context) (err error)
 	CreateAttendee(ctx context.Context, attendee model.Attendee) (err error)
 	Count(ctx context.Context) (total int64, err error)
 	GetByMemberID(ctx context.Context, memberID int64) (invitations []model.InvitationDetail, err error)
@@ -47,10 +46,6 @@ func (r *Repository) GetByID(ctx context.Context, id int64) (invitation model.In
 
 func (r *Repository) Update(ctx context.Context, invitation model.Invitation, id int64) (result sql.Result, err error) {
 	result, err = r.db.Exec(UpdateInvitationQuery, invitation.Status, id)
-	return
-}
-
-func (r *Repository) Delete(ctx context.Context) (err error) {
 	return
 }
 

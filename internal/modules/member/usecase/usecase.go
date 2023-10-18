@@ -13,8 +13,6 @@ type IUsecase interface {
 	Create(ctx context.Context, memberPayload model.Member) (member model.Member, err error)
 	Get(ctx context.Context, param param.Param) (members []model.Member, total int64, err error)
 	GetByID(ctx context.Context, id int64) (member model.Member, err error)
-	Update(ctx context.Context) (err error)
-	Delete(ctx context.Context) (err error)
 }
 
 type Usecase struct {
@@ -65,13 +63,5 @@ func (u *Usecase) Get(ctx context.Context, param param.Param) (members []model.M
 
 func (u *Usecase) GetByID(ctx context.Context, id int64) (member model.Member, err error) {
 	member, err = u.repo.GetByID(ctx, id)
-	return
-}
-
-func (u *Usecase) Update(ctx context.Context) (err error) {
-	return
-}
-
-func (u *Usecase) Delete(ctx context.Context) (err error) {
 	return
 }

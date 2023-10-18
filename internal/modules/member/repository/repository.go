@@ -13,8 +13,6 @@ type IRepository interface {
 	Create(ctx context.Context, member model.Member) (result sql.Result, err error)
 	Get(ctx context.Context, param param.Param) (members []model.Member, err error)
 	GetByID(ctx context.Context, id int64) (member model.Member, err error)
-	Update(ctx context.Context) (err error)
-	Delete(ctx context.Context) (err error)
 	Count(ctx context.Context) (total int64, err error)
 }
 
@@ -40,14 +38,6 @@ func (r *Repository) Get(ctx context.Context, param param.Param) (members []mode
 
 func (r *Repository) GetByID(ctx context.Context, id int64) (member model.Member, err error) {
 	err = r.db.Get(&member, GetMemberByIDQuery, id)
-	return
-}
-
-func (r *Repository) Update(ctx context.Context) (err error) {
-	return
-}
-
-func (r *Repository) Delete(ctx context.Context) (err error) {
 	return
 }
 
