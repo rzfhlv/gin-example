@@ -9,8 +9,8 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rzfhlv/gin-example/internal/modules/gathering/model"
-	mockUsecase "github.com/rzfhlv/gin-example/shared/mocks/modules/gathering/usecase"
+	"github.com/rzfhlv/gin-example/internal/modules/invitation/model"
+	mockUsecase "github.com/rzfhlv/gin-example/shared/mocks/modules/invitation/usecase"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -23,8 +23,8 @@ type testCase struct {
 
 var (
 	errFoo         = errors.New("error")
-	payloadSuccess = `{"creator":"john doe","type":"family","name":"family gathering","location":"puncak","schedule_at":"2023-11-10 12:00:00"}`
-	payloadFail    = `{"creator":"john doe","type":"","name":"family gathering","location":"puncak","schedule_at":"2023-11-10 12:00:00"}`
+	payloadSuccess = `{"member_id":1,"gathering_id":1,"status":"accept"}`
+	payloadFail    = `{"member_id":,"gathering_id":1,"status":"accept"}`
 )
 
 func TestNew(t *testing.T) {
@@ -51,7 +51,7 @@ func TestCreate(t *testing.T) {
 	for _, tt := range testCase {
 		t.Run(tt.name, func(t *testing.T) {
 			mockUsecase := mockUsecase.IUsecase{}
-			mockUsecase.On("Create", mock.Anything, mock.Anything).Return(model.Gathering{}, tt.wantError)
+			mockUsecase.On("Create", mock.Anything, mock.Anything).Return(model.Invitation{}, tt.wantError)
 
 			h := &Handler{
 				usecase: &mockUsecase,
@@ -59,7 +59,7 @@ func TestCreate(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			ctx, _ := gin.CreateTestContext(w)
-			ctx.Request = httptest.NewRequest(http.MethodPost, "/v1/gatherings", strings.NewReader(tt.body))
+			ctx.Request = httptest.NewRequest(http.MethodPost, "/v1/invitations", strings.NewReader(tt.body))
 			ctx.Request.Header.Set("Content-Type", "application/json")
 
 			h.Create(ctx)
@@ -86,7 +86,7 @@ func TestGet(t *testing.T) {
 	for _, tt := range testCase {
 		t.Run(tt.name, func(t *testing.T) {
 			mockUsecase := mockUsecase.IUsecase{}
-			mockUsecase.On("Get", mock.Anything, mock.Anything).Return([]model.Gathering{}, expectedCount, tt.wantError)
+			mockUsecase.On("Get", mock.Anything, mock.Anything).Return([]model.Invitation{}, expectedCount, tt.wantError)
 
 			h := &Handler{
 				usecase: &mockUsecase,
@@ -94,7 +94,7 @@ func TestGet(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			ctx, _ := gin.CreateTestContext(w)
-			ctx.Request = httptest.NewRequest(http.MethodGet, "/v1/gatherings"+tt.queryParam, nil)
+			ctx.Request = httptest.NewRequest(http.MethodGet, "/v1/invitations"+tt.queryParam, nil)
 			ctx.Request.Header.Set("Content-Type", "application/json")
 
 			h.Get(ctx)
@@ -123,7 +123,7 @@ func TestGetByID(t *testing.T) {
 	for _, tt := range testCase {
 		t.Run(tt.name, func(t *testing.T) {
 			mockUsecase := mockUsecase.IUsecase{}
-			mockUsecase.On("GetByID", mock.Anything, mock.Anything).Return(model.Gathering{}, tt.wantError)
+			mockUsecase.On("GetByID", mock.Anything, mock.Anything).Return(model.Invitation{}, tt.wantError)
 
 			h := &Handler{
 				usecase: &mockUsecase,
@@ -131,7 +131,7 @@ func TestGetByID(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			ctx, _ := gin.CreateTestContext(w)
-			ctx.Request = httptest.NewRequest(http.MethodGet, "/v1/gatherings/"+tt.param, nil)
+			ctx.Request = httptest.NewRequest(http.MethodGet, "/v1/invitations/"+tt.param, nil)
 			ctx.Request.Header.Set("Content-Type", "application/json")
 			ctx.Params = gin.Params{{Key: "id", Value: tt.param}}
 
@@ -141,7 +141,45 @@ func TestGetByID(t *testing.T) {
 	}
 }
 
-func TestGetDetailByID(t *testing.T) {
+func TestUpdate(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	testCase := []testCase{
+		{
+			name: "Testcase #1: Positive", body: payloadSuccess, param: "1", wantError: nil, code: http.StatusOK,
+		},
+		{
+			name: "Testcase #2: Negative", body: payloadSuccess, param: "1", wantError: errFoo, code: http.StatusInternalServerError,
+		},
+		{
+			name: "Testcase #3: Negative", body: payloadFail, param: "1", wantError: errFoo, code: http.StatusUnprocessableEntity,
+		},
+		{
+			name: "Testcase #4: Negative", body: payloadSuccess, param: "one", wantError: errFoo, code: http.StatusUnprocessableEntity,
+		},
+	}
+	for _, tt := range testCase {
+		t.Run(tt.name, func(t *testing.T) {
+			mockUsecase := mockUsecase.IUsecase{}
+			mockUsecase.On("Update", mock.Anything, mock.Anything, mock.Anything).Return(model.Invitation{}, tt.wantError)
+
+			h := &Handler{
+				usecase: &mockUsecase,
+			}
+
+			w := httptest.NewRecorder()
+			ctx, _ := gin.CreateTestContext(w)
+			ctx.Request = httptest.NewRequest(http.MethodPatch, "/v1/invitations/"+tt.param, strings.NewReader(tt.body))
+			ctx.Request.Header.Set("Content-Type", "application/json")
+			ctx.Params = gin.Params{{Key: "id", Value: tt.param}}
+
+			h.Update(ctx)
+			assert.EqualValues(t, tt.code, w.Code)
+		})
+	}
+}
+
+func TestGetByMemberID(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	testCase := []testCase{
@@ -161,7 +199,7 @@ func TestGetDetailByID(t *testing.T) {
 	for _, tt := range testCase {
 		t.Run(tt.name, func(t *testing.T) {
 			mockUsecase := mockUsecase.IUsecase{}
-			mockUsecase.On("GetDetailByID", mock.Anything, mock.Anything).Return(model.GatheringDetail{}, tt.wantError)
+			mockUsecase.On("GetByMemberID", mock.Anything, mock.Anything).Return([]model.InvitationDetail{}, tt.wantError)
 
 			h := &Handler{
 				usecase: &mockUsecase,
@@ -169,11 +207,11 @@ func TestGetDetailByID(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			ctx, _ := gin.CreateTestContext(w)
-			ctx.Request = httptest.NewRequest(http.MethodGet, "/v1/gatherings/"+tt.param, nil)
+			ctx.Request = httptest.NewRequest(http.MethodGet, "/v1/invitations/"+tt.param, nil)
 			ctx.Request.Header.Set("Content-Type", "application/json")
 			ctx.Params = gin.Params{{Key: "id", Value: tt.param}}
 
-			h.GetDetailByID(ctx)
+			h.GetByMemberID(ctx)
 			assert.Equal(t, tt.code, w.Code)
 		})
 	}
