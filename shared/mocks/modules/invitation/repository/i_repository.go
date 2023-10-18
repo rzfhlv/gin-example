@@ -82,20 +82,6 @@ func (_m *IRepository) CreateAttendee(ctx context.Context, attendee model.Attend
 	return r0
 }
 
-// Delete provides a mock function with given fields: ctx
-func (_m *IRepository) Delete(ctx context.Context) error {
-	ret := _m.Called(ctx)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
-		r0 = rf(ctx)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
 // Get provides a mock function with given fields: ctx, _a1
 func (_m *IRepository) Get(ctx context.Context, _a1 param.Param) ([]model.Invitation, error) {
 	ret := _m.Called(ctx, _a1)
@@ -139,6 +125,32 @@ func (_m *IRepository) GetByID(ctx context.Context, id int64) (model.Invitation,
 
 	if rf, ok := ret.Get(1).(func(context.Context, int64) error); ok {
 		r1 = rf(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetByMemberID provides a mock function with given fields: ctx, memberID
+func (_m *IRepository) GetByMemberID(ctx context.Context, memberID int64) ([]model.InvitationDetail, error) {
+	ret := _m.Called(ctx, memberID)
+
+	var r0 []model.InvitationDetail
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int64) ([]model.InvitationDetail, error)); ok {
+		return rf(ctx, memberID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int64) []model.InvitationDetail); ok {
+		r0 = rf(ctx, memberID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.InvitationDetail)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int64) error); ok {
+		r1 = rf(ctx, memberID)
 	} else {
 		r1 = ret.Error(1)
 	}

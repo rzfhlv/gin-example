@@ -28,6 +28,11 @@ func (_m *IHandler) GetByID(g *gin.Context) {
 	_m.Called(g)
 }
 
+// GetDetailByID provides a mock function with given fields: g
+func (_m *IHandler) GetDetailByID(g *gin.Context) {
+	_m.Called(g)
+}
+
 // NewIHandler creates a new instance of IHandler. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewIHandler(t interface {

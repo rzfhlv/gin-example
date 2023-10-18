@@ -28,6 +28,11 @@ func (_m *IHandler) GetByID(g *gin.Context) {
 	_m.Called(g)
 }
 
+// GetByMemberID provides a mock function with given fields: g
+func (_m *IHandler) GetByMemberID(g *gin.Context) {
+	_m.Called(g)
+}
+
 // Update provides a mock function with given fields: g
 func (_m *IHandler) Update(g *gin.Context) {
 	_m.Called(g)
