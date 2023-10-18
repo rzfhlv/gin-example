@@ -14,6 +14,7 @@ func Mount(route *gin.RouterGroup, h handler.IHandler) (g *gin.RouterGroup) {
 	g.GET("/:id", h.GetByID)
 	g.POST("", h.Create)
 	g.PATCH("/:id", h.Update)
+	g.GET("/me/:id", h.GetByMemberID)
 	return
 }
 

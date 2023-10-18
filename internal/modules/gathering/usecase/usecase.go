@@ -11,10 +11,11 @@ import (
 
 type IUsecase interface {
 	Create(ctx context.Context, gathering model.Gathering) (result model.Gathering, err error)
-	Get(ctx context.Context, param param.Param) (result []model.Gathering, total int64, err error)
-	GetByID(ctx context.Context, id int64) (result model.Gathering, err error)
+	Get(ctx context.Context, param param.Param) (gatherings []model.Gathering, total int64, err error)
+	GetByID(ctx context.Context, id int64) (gathering model.Gathering, err error)
 	Update(ctx context.Context) (err error)
 	Delete(ctx context.Context) (err error)
+	GetDetailByID(ctx context.Context, id int64) (gathering model.GatheringDetail, err error)
 }
 
 type Usecase struct {
@@ -70,5 +71,16 @@ func (u *Usecase) Update(ctx context.Context) (err error) {
 }
 
 func (u *Usecase) Delete(ctx context.Context) (err error) {
+	return
+}
+
+func (u *Usecase) GetDetailByID(ctx context.Context, id int64) (gathering model.GatheringDetail, err error) {
+	gatheringByID, err := u.repo.GetByID(ctx, id)
+	if err != nil {
+		return
+	}
+
+	gathering, err = u.repo.GetDetailByID(ctx, id)
+	gathering.Gathering = gatheringByID
 	return
 }

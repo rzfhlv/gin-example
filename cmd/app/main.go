@@ -19,6 +19,7 @@ import (
 
 func main() {
 	cfg := config.Init()
+	defer cfg.MySQL.Close()
 
 	svc := internal.New(cfg)
 

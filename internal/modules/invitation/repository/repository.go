@@ -17,6 +17,7 @@ type IRepository interface {
 	Delete(ctx context.Context) (err error)
 	CreateAttendee(ctx context.Context, attendee model.Attendee) (err error)
 	Count(ctx context.Context) (total int64, err error)
+	GetByMemberID(ctx context.Context, memberID int64) (invitations []model.InvitationDetail, err error)
 }
 
 type Repository struct {
@@ -30,7 +31,7 @@ func New(db *sqlx.DB) IRepository {
 }
 
 func (r *Repository) Create(ctx context.Context, invitation model.Invitation) (result sql.Result, err error) {
-	result, err = r.db.Exec(CreateInvitationQuery, invitation.MemberID, invitation.MemberID, invitation.Status)
+	result, err = r.db.Exec(CreateInvitationQuery, invitation.MemberID, invitation.GatheringID, invitation.Status)
 	return
 }
 
@@ -60,5 +61,26 @@ func (r *Repository) CreateAttendee(ctx context.Context, attendee model.Attendee
 
 func (r *Repository) Count(ctx context.Context) (total int64, err error) {
 	err = r.db.Get(&total, CountInvitationQuery)
+	return
+}
+
+func (r *Repository) GetByMemberID(ctx context.Context, memberID int64) (invitations []model.InvitationDetail, err error) {
+	rows, err := r.db.Query(GetInvitationByMemberIDQuery, memberID)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var invitation = model.InvitationDetail{}
+		err = rows.Scan(&invitation.ID, &invitation.MemberID, &invitation.GatheringID,
+			&invitation.Status, &invitation.Gathering.ID, &invitation.Gathering.Creator,
+			&invitation.Gathering.Type, &invitation.Gathering.Name,
+			&invitation.Gathering.Location, &invitation.Gathering.ScheduleAt)
+		if err != nil {
+			return
+		}
+		invitations = append(invitations, invitation)
+	}
 	return
 }

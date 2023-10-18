@@ -18,6 +18,7 @@ type IHandler interface {
 	Create(g *gin.Context)
 	Get(g *gin.Context)
 	GetByID(g *gin.Context)
+	GetDetailByID(g *gin.Context)
 }
 
 type Handler struct {
@@ -90,6 +91,31 @@ func (h *Handler) GetByID(g *gin.Context) {
 	gathering, err := h.usecase.GetByID(ctx, gatheringID)
 	if err != nil {
 		log.Printf("Error Get By ID Gathering, %v", err.Error())
+		if err == sql.ErrNoRows {
+			g.JSON(http.StatusNotFound, response.Set(message.ERROR, message.NOTFOUND, nil, nil))
+			return
+		}
+		g.JSON(http.StatusInternalServerError, response.Set(message.SUCCESS, message.SOMETHINGWENTWRONG, nil, nil))
+		return
+	}
+
+	g.JSON(http.StatusOK, response.Set(message.SUCCESS, message.OK, nil, gathering))
+}
+
+func (h *Handler) GetDetailByID(g *gin.Context) {
+	ctx := g.Request.Context()
+
+	id := g.Param("id")
+	gatheringID, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		log.Printf("Error Parse Gathering ID, %v", err.Error())
+		g.JSON(http.StatusUnprocessableEntity, response.Set(message.ERROR, message.UNPROCESSABLEENTITY, nil, nil))
+		return
+	}
+
+	gathering, err := h.usecase.GetDetailByID(ctx, gatheringID)
+	if err != nil {
+		log.Printf("Error Get Detail By ID Gathering, %v", err.Error())
 		if err == sql.ErrNoRows {
 			g.JSON(http.StatusNotFound, response.Set(message.ERROR, message.NOTFOUND, nil, nil))
 			return

@@ -1,5 +1,9 @@
 package model
 
+import (
+	modelGathering "github.com/rzfhlv/gin-example/internal/modules/gathering/model"
+)
+
 type Invitation struct {
 	ID          int64  `json:"id" db:"id"`
 	MemberID    int64  `json:"member_id" db:"member_id" binding:"required"`
@@ -10,4 +14,9 @@ type Invitation struct {
 type Attendee struct {
 	MemberID    int64 `json:"member_id" db:"member_id"`
 	GatheringID int64 `json:"gathering_id" db:"gathering_id"`
+}
+
+type InvitationDetail struct {
+	Invitation
+	Gathering modelGathering.Gathering `json:"gathering"`
 }

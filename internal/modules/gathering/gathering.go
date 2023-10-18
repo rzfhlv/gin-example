@@ -13,6 +13,7 @@ func Mount(route *gin.RouterGroup, h handler.IHandler) (g *gin.RouterGroup) {
 	g.GET("", h.Get)
 	g.GET("/:id", h.GetByID)
 	g.POST("", h.Create)
+	g.GET("/:id/detail", h.GetDetailByID)
 	return
 }
 

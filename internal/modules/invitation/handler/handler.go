@@ -19,6 +19,7 @@ type IHandler interface {
 	Get(g *gin.Context)
 	GetByID(g *gin.Context)
 	Update(g *gin.Context)
+	GetByMemberID(g *gin.Context)
 }
 
 type Handler struct {
@@ -129,4 +130,29 @@ func (h *Handler) Update(g *gin.Context) {
 	}
 
 	g.JSON(http.StatusOK, response.Set(message.SUCCESS, message.OK, nil, invitation))
+}
+
+func (h *Handler) GetByMemberID(g *gin.Context) {
+	ctx := g.Request.Context()
+
+	id := g.Param("id")
+	memberID, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		log.Printf("Error Parse Invitation Member ID, %v", err.Error())
+		g.JSON(http.StatusUnprocessableEntity, response.Set(message.ERROR, message.UNPROCESSABLEENTITY, nil, nil))
+		return
+	}
+
+	invitations, err := h.usecase.GetByMemberID(ctx, memberID)
+	if err != nil {
+		log.Printf("Error Get By Member ID Invitation, %v", err.Error())
+		if err == sql.ErrNoRows {
+			g.JSON(http.StatusNotFound, response.Set(message.ERROR, message.NOTFOUND, nil, nil))
+			return
+		}
+		g.JSON(http.StatusInternalServerError, response.Set(message.SUCCESS, message.SOMETHINGWENTWRONG, nil, nil))
+		return
+	}
+
+	g.JSON(http.StatusOK, response.Set(message.SUCCESS, message.OK, nil, invitations))
 }
