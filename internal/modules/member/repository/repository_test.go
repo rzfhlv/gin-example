@@ -8,7 +8,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmoiron/sqlx"
-	"github.com/rzfhlv/gin-example/internal/modules/gathering/model"
+	"github.com/rzfhlv/gin-example/internal/modules/member/model"
 	"github.com/rzfhlv/gin-example/pkg/param"
 	"github.com/stretchr/testify/assert"
 )
@@ -22,22 +22,16 @@ type testCase struct {
 }
 
 var (
-	ctx        = context.Background()
-	gatherings = []model.Gathering{
+	ctx     = context.Background()
+	members = []model.Member{
 		{
-			ID: 1, Creator: "John", Type: "family", Name: "Family Gathering",
-			Location: "Jakarta", ScheduleAtDB: time.Now(), MemberID: 1,
+			ID: 1, FirstName: "John", LastName: "Doe", Email: "john@test.com", Password: "password", CreatedAt: time.Now(),
 		},
 	}
 	errFoo    = errors.New("foo")
 	paramTest = param.Param{
 		Limit: 10,
 		Page:  1,
-	}
-	detailGatherings = []model.Attendee{
-		{
-			ID: 1, FirstName: "John", LastName: "Doe", Email: "john@test.com", Status: "accept",
-		},
 	}
 )
 
@@ -47,8 +41,8 @@ func TestCreate(t *testing.T) {
 			name: "Testcase #1: Positive",
 			args: ctx,
 			beforeTest: func(s sqlmock.Sqlmock) {
-				s.ExpectExec("INSERT INTO gatherings (creator, member_id, type, name, location, schedule_at) VALUES (?, ?, ?, ?, ?, ?);").
-					WithArgs(gatherings[0].Creator, gatherings[0].MemberID, gatherings[0].Type, gatherings[0].Name, gatherings[0].Location, gatherings[0].ScheduleAtDB).
+				s.ExpectExec("INSERT INTO members (first_name, last_name, email, password, created_at) VALUES (?, ?, ?, ?, ?);").
+					WithArgs(members[0].FirstName, members[0].LastName, members[0].Email, members[0].Password, members[0].CreatedAt).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 			},
 			want:      errFoo,
@@ -58,8 +52,8 @@ func TestCreate(t *testing.T) {
 			name: "Testcase #2: Negative",
 			args: ctx,
 			beforeTest: func(s sqlmock.Sqlmock) {
-				s.ExpectExec("INSERT INTO gatherings (creator, member_id, type, name, location, schedule_at) VALUES (?, ?, ?, ?, ?, ?);").
-					WithArgs(gatherings[0].Creator, gatherings[0].MemberID, gatherings[0].Type, gatherings[0].Name, gatherings[0].Location, gatherings[0].ScheduleAtDB).
+				s.ExpectExec("INSERT INTO members (first_name, last_name, email, password, created_at) VALUES (?, ?, ?, ?, ?);").
+					WithArgs(members[0].FirstName, members[0].LastName, members[0].Email, members[0].Password, members[0].CreatedAt).
 					WillReturnError(errFoo)
 			},
 			want:      errFoo,
@@ -81,7 +75,7 @@ func TestCreate(t *testing.T) {
 				tt.beforeTest(mockSQL)
 			}
 
-			result, err := r.Create(tt.args, gatherings[0])
+			result, err := r.Create(tt.args, members[0])
 			if tt.wantError {
 				assert.Error(t, err)
 				assert.Empty(t, result)
@@ -103,11 +97,10 @@ func TestGet(t *testing.T) {
 			args: ctx,
 			beforeTest: func(s sqlmock.Sqlmock) {
 				rows := sqlmock.NewRows([]string{
-					"id", "creator", "member_id", "type", "name", "location", "schedule_at",
+					"id", "first_name", "last_name", "email", "created_at",
 				}).
-					AddRow(gatherings[0].ID, gatherings[0].Creator, gatherings[0].MemberID, gatherings[0].Type,
-						gatherings[0].Name, gatherings[0].Location, gatherings[0].ScheduleAtDB)
-				s.ExpectQuery("SELECT id, creator, member_id, type, name, location, schedule_at FROM gatherings ORDER BY id DESC LIMIT ? OFFSET ?;").
+					AddRow(members[0].ID, members[0].FirstName, members[0].LastName, members[0].Email, members[0].CreatedAt)
+				s.ExpectQuery("SELECT id, first_name, last_name, email, created_at FROM members ORDER BY id DESC LIMIT ? OFFSET ?;").
 					WithArgs(paramTest.Limit, paramTest.CalculateOffset()).
 					WillReturnRows(rows)
 			},
@@ -118,7 +111,7 @@ func TestGet(t *testing.T) {
 			name: "Testcase #2: Negative",
 			args: ctx,
 			beforeTest: func(s sqlmock.Sqlmock) {
-				s.ExpectQuery("SELECT id, creator, member_id, type, name, location, schedule_at FROM gatherings ORDER BY id DESC LIMIT ? OFFSET ?;").
+				s.ExpectQuery("SELECT id, first_name, last_name, email, created_at FROM members ORDER BY id DESC LIMIT ? OFFSET ?;").
 					WithArgs(paramTest.Limit, paramTest.CalculateOffset()).
 					WillReturnError(errFoo)
 			},
@@ -141,13 +134,13 @@ func TestGet(t *testing.T) {
 				tt.beforeTest(mockSQL)
 			}
 
-			gatherings, err := r.Get(tt.args, paramTest)
+			members, err := r.Get(tt.args, paramTest)
 			if tt.wantError {
 				assert.Error(t, err)
-				assert.Empty(t, gatherings)
+				assert.Empty(t, members)
 			} else {
 				assert.NoError(t, err)
-				assert.NotNil(t, gatherings)
+				assert.NotNil(t, members)
 			}
 
 			if err := mockSQL.ExpectationsWereMet(); err != nil {
@@ -164,12 +157,11 @@ func TestGetByID(t *testing.T) {
 			args: ctx,
 			beforeTest: func(s sqlmock.Sqlmock) {
 				rows := sqlmock.NewRows([]string{
-					"id", "creator", "member_id", "type", "name", "location", "schedule_at",
+					"id", "first_name", "last_name", "email", "created_at",
 				}).
-					AddRow(gatherings[0].ID, gatherings[0].Creator, gatherings[0].MemberID, gatherings[0].Type,
-						gatherings[0].Name, gatherings[0].Location, gatherings[0].ScheduleAtDB)
-				s.ExpectQuery("SELECT id, creator, member_id, type, name, location, schedule_at FROM gatherings WHERE id = ?;").
-					WithArgs(gatherings[0].ID).
+					AddRow(members[0].ID, members[0].FirstName, members[0].LastName, members[0].Email, members[0].CreatedAt)
+				s.ExpectQuery("SELECT id, first_name, last_name, email FROM members WHERE id = ?;").
+					WithArgs(members[0].ID).
 					WillReturnRows(rows)
 			},
 			want:      nil,
@@ -179,8 +171,8 @@ func TestGetByID(t *testing.T) {
 			name: "Testcase #2: Negative",
 			args: ctx,
 			beforeTest: func(s sqlmock.Sqlmock) {
-				s.ExpectQuery("SELECT id, creator, member_id, type, name, location, schedule_at FROM gatherings WHERE id = ?;").
-					WithArgs(gatherings[0].ID).
+				s.ExpectQuery("SELECT id, first_name, last_name, email FROM members WHERE id = ?;").
+					WithArgs(members[0].ID).
 					WillReturnError(errFoo)
 			},
 			want:      errFoo,
@@ -202,13 +194,13 @@ func TestGetByID(t *testing.T) {
 				tt.beforeTest(mockSQL)
 			}
 
-			gathering, err := r.GetByID(tt.args, gatherings[0].ID)
+			member, err := r.GetByID(tt.args, members[0].ID)
 			if tt.wantError {
 				assert.Error(t, err)
-				assert.Empty(t, gathering)
+				assert.Empty(t, member)
 			} else {
 				assert.NoError(t, err)
-				assert.NotNil(t, gathering)
+				assert.NotNil(t, member)
 			}
 
 			if err := mockSQL.ExpectationsWereMet(); err != nil {
@@ -227,7 +219,7 @@ func TestCount(t *testing.T) {
 			beforeTest: func(s sqlmock.Sqlmock) {
 				rows := sqlmock.NewRows([]string{"count"}).
 					AddRow(expectedCount)
-				s.ExpectQuery("SELECT count(*) FROM gatherings;").
+				s.ExpectQuery("SELECT count(*) FROM members;").
 					WillReturnRows(rows)
 			},
 			want:      nil,
@@ -237,8 +229,8 @@ func TestCount(t *testing.T) {
 			name: "Testcase #2: Negative",
 			args: ctx,
 			beforeTest: func(s sqlmock.Sqlmock) {
-				s.ExpectQuery("SELECT count(*) FROM gatherings;").
-					WithArgs(gatherings[0].ID).
+				s.ExpectQuery("SELECT count(*) FROM members;").
+					WithArgs(members[0].ID).
 					WillReturnError(errFoo)
 			},
 			want:      errFoo,
@@ -266,77 +258,6 @@ func TestCount(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, expectedCount, total)
-			}
-
-			if err := mockSQL.ExpectationsWereMet(); err != nil {
-				assert.Error(t, err)
-			}
-		})
-	}
-}
-
-func TestGetDetailByID(t *testing.T) {
-	testCase := []testCase{
-		{
-			name: "Testcase #1: Positive",
-			args: ctx,
-			beforeTest: func(s sqlmock.Sqlmock) {
-				rows := sqlmock.NewRows([]string{
-					"m.id", "m.first_name", "m.last_name", "m.email", "i.status",
-				}).
-					AddRow(detailGatherings[0].ID, detailGatherings[0].FirstName,
-						detailGatherings[0].LastName, detailGatherings[0].Email, detailGatherings[0].Status)
-				s.ExpectQuery(`SELECT m.id, m.first_name, m.last_name, m.email, i.status
-				FROM members m
-				LEFT JOIN attendee a ON m.id = a.member_id
-				LEFT JOIN invitations i ON a.gathering_id = i.gathering_id
-				AND a.member_id = i.member_id
-				WHERE a.gathering_id = ?;`).
-					WithArgs(gatherings[0].ID).
-					WillReturnRows(rows)
-			},
-			want:      nil,
-			wantError: false,
-		},
-		{
-			name: "Testcase #2: Negative",
-			args: ctx,
-			beforeTest: func(s sqlmock.Sqlmock) {
-				s.ExpectQuery(`SELECT m.id, m.first_name, m.last_name, m.email, i.status
-				FROM members m
-				LEFT JOIN attendee a ON m.id = a.member_id
-				LEFT JOIN invitations i ON a.gathering_id = i.gathering_id
-				AND a.member_id = i.member_id
-				WHERE a.gathering_id = ?;`).
-					WithArgs(gatherings[0].ID).
-					WillReturnError(errFoo)
-			},
-			want:      errFoo,
-			wantError: true,
-		},
-	}
-	for _, tt := range testCase {
-		t.Run(tt.name, func(t *testing.T) {
-			mockDB, mockSQL, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-			defer mockDB.Close()
-
-			db := sqlx.NewDb(mockDB, "sqlmock")
-
-			r := &Repository{
-				db: db,
-			}
-
-			if tt.beforeTest != nil {
-				tt.beforeTest(mockSQL)
-			}
-
-			gatherings, err := r.GetDetailByID(tt.args, gatherings[0].ID)
-			if tt.wantError {
-				assert.Error(t, err)
-				assert.Empty(t, gatherings)
-			} else {
-				assert.NoError(t, err)
-				assert.NotNil(t, gatherings)
 			}
 
 			if err := mockSQL.ExpectationsWereMet(); err != nil {
