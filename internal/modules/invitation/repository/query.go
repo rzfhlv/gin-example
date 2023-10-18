@@ -18,4 +18,10 @@ var (
 		VALUES (?, ?);`
 	CountInvitationQuery = `SELECT count(*)
 		FROM invitations;`
+	GetInvitationByMemberIDQuery = `SELECT i.id as iid, i.member_id,
+		i.gathering_id, i.status, g.id as gid, g.creator,
+		g.type, g.name, g.location, g.schedule_at 
+		FROM invitations i
+		LEFT JOIN gatherings g ON i.gathering_id = g.id
+		WHERE i.member_id = ?`
 )

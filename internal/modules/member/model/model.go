@@ -8,5 +8,5 @@ type Member struct {
 	LastName  string    `json:"last_name" db:"last_name" binding:"required"`
 	Email     string    `json:"email" db:"email" binding:"required"`
 	Password  string    `json:"password,omitempty" binding:"required"`
-	CreatedAt time.Time `db:"created_at"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
 }

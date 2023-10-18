@@ -16,6 +16,7 @@ type IRepository interface {
 	Update(ctx context.Context) (err error)
 	Delete(ctx context.Context) (err error)
 	Count(ctx context.Context) (total int64, err error)
+	GetDetailByID(ctx context.Context, id int64) (gathering model.GatheringDetail, err error)
 }
 
 type Repository struct {
@@ -55,5 +56,24 @@ func (r *Repository) Delete(ctx context.Context) (err error) {
 
 func (r *Repository) Count(ctx context.Context) (total int64, err error) {
 	err = r.db.Get(&total, CountGatheringQuery)
+	return
+}
+
+func (r *Repository) GetDetailByID(ctx context.Context, id int64) (gathering model.GatheringDetail, err error) {
+	rows, err := r.db.Query(GetDetailGatheringByIDQuery, id)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var attendee = model.Attendee{}
+		err = rows.Scan(&attendee.ID, &attendee.FirstName, &attendee.LastName,
+			&attendee.Email, &attendee.Status)
+		if err != nil {
+			return
+		}
+		gathering.Attendees = append(gathering.Attendees, attendee)
+	}
 	return
 }
