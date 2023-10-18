@@ -1,11 +1,11 @@
-package healthcheck
+package gathering
 
 import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rzfhlv/gin-example/config"
-	mockHandler "github.com/rzfhlv/gin-example/shared/mocks/modules/health-check/handler"
+	mockHandler "github.com/rzfhlv/gin-example/shared/mocks/modules/gathering/handler"
 	"github.com/stretchr/testify/assert"
 )
 
