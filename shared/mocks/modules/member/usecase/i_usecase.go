@@ -40,20 +40,6 @@ func (_m *IUsecase) Create(ctx context.Context, memberPayload model.Member) (mod
 	return r0, r1
 }
 
-// Delete provides a mock function with given fields: ctx
-func (_m *IUsecase) Delete(ctx context.Context) error {
-	ret := _m.Called(ctx)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
-		r0 = rf(ctx)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
 // Get provides a mock function with given fields: ctx, _a1
 func (_m *IUsecase) Get(ctx context.Context, _a1 param.Param) ([]model.Member, int64, error) {
 	ret := _m.Called(ctx, _a1)
@@ -109,20 +95,6 @@ func (_m *IUsecase) GetByID(ctx context.Context, id int64) (model.Member, error)
 	}
 
 	return r0, r1
-}
-
-// Update provides a mock function with given fields: ctx
-func (_m *IUsecase) Update(ctx context.Context) error {
-	ret := _m.Called(ctx)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
-		r0 = rf(ctx)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
 }
 
 // NewIUsecase creates a new instance of IUsecase. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

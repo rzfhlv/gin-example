@@ -68,20 +68,6 @@ func (_m *IRepository) Create(ctx context.Context, member model.Member) (sql.Res
 	return r0, r1
 }
 
-// Delete provides a mock function with given fields: ctx
-func (_m *IRepository) Delete(ctx context.Context) error {
-	ret := _m.Called(ctx)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
-		r0 = rf(ctx)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
 // Get provides a mock function with given fields: ctx, _a1
 func (_m *IRepository) Get(ctx context.Context, _a1 param.Param) ([]model.Member, error) {
 	ret := _m.Called(ctx, _a1)
@@ -130,20 +116,6 @@ func (_m *IRepository) GetByID(ctx context.Context, id int64) (model.Member, err
 	}
 
 	return r0, r1
-}
-
-// Update provides a mock function with given fields: ctx
-func (_m *IRepository) Update(ctx context.Context) error {
-	ret := _m.Called(ctx)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
-		r0 = rf(ctx)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
 }
 
 // NewIRepository creates a new instance of IRepository. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

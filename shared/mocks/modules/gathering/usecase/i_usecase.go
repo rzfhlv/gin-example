@@ -40,20 +40,6 @@ func (_m *IUsecase) Create(ctx context.Context, gathering model.Gathering) (mode
 	return r0, r1
 }
 
-// Delete provides a mock function with given fields: ctx
-func (_m *IUsecase) Delete(ctx context.Context) error {
-	ret := _m.Called(ctx)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
-		r0 = rf(ctx)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
 // Get provides a mock function with given fields: ctx, _a1
 func (_m *IUsecase) Get(ctx context.Context, _a1 param.Param) ([]model.Gathering, int64, error) {
 	ret := _m.Called(ctx, _a1)
@@ -111,18 +97,28 @@ func (_m *IUsecase) GetByID(ctx context.Context, id int64) (model.Gathering, err
 	return r0, r1
 }
 
-// Update provides a mock function with given fields: ctx
-func (_m *IUsecase) Update(ctx context.Context) error {
-	ret := _m.Called(ctx)
+// GetDetailByID provides a mock function with given fields: ctx, id
+func (_m *IUsecase) GetDetailByID(ctx context.Context, id int64) (model.GatheringDetail, error) {
+	ret := _m.Called(ctx, id)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
-		r0 = rf(ctx)
+	var r0 model.GatheringDetail
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int64) (model.GatheringDetail, error)); ok {
+		return rf(ctx, id)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int64) model.GatheringDetail); ok {
+		r0 = rf(ctx, id)
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(model.GatheringDetail)
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, int64) error); ok {
+		r1 = rf(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // NewIUsecase creates a new instance of IUsecase. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
