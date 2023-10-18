@@ -230,7 +230,6 @@ func TestCount(t *testing.T) {
 			args: ctx,
 			beforeTest: func(s sqlmock.Sqlmock) {
 				s.ExpectQuery("SELECT count(*) FROM members;").
-					WithArgs(members[0].ID).
 					WillReturnError(errFoo)
 			},
 			want:      errFoo,
