@@ -445,6 +445,28 @@ func TestGetByMemberID(t *testing.T) {
 			want:      errFoo,
 			wantError: true,
 		},
+		{
+			name: "Testcase #3: Negative",
+			args: ctx,
+			beforeTest: func(s sqlmock.Sqlmock) {
+				rows := sqlmock.NewRows([]string{
+					"iid", "i.member_id", "i.gathering_id", "i.status", "gid", "g.creator",
+					"g.type", "g.name", "g.location", "g.schedule_at",
+				}).
+					AddRow(nil, invitations[0].MemberID, invitations[0].GatheringID, invitations[0].Status,
+						gathering.ID, gathering.Creator, gathering.Type, gathering.Name, gathering.Location, gathering.ScheduleAt)
+				s.ExpectQuery(`SELECT i.id as iid, i.member_id,
+						i.gathering_id, i.status, g.id as gid, g.creator,
+						g.type, g.name, g.location, g.schedule_at 
+						FROM invitations i
+						LEFT JOIN gatherings g ON i.gathering_id = g.id
+						WHERE i.member_id = ?`).
+					WithArgs(invitations[0].MemberID).
+					WillReturnRows(rows)
+			},
+			want:      errFoo,
+			wantError: true,
+		},
 	}
 	for _, tt := range testCase {
 		t.Run(tt.name, func(t *testing.T) {
