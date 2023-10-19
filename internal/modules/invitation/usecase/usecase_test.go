@@ -13,9 +13,10 @@ import (
 )
 
 type testCase struct {
-	name                         string
-	wantError, wantAttendeeError error
-	isErr                        bool
+	name                                      string
+	wantError, wantAttendeeError, wantIDError error
+	isErr                                     bool
+	result                                    CustomResult
 }
 
 var (
@@ -31,10 +32,11 @@ var (
 type CustomResult struct {
 	lastInsertID int64
 	rowsAffected int64
+	err          error
 }
 
 func (r *CustomResult) LastInsertId() (int64, error) {
-	return r.lastInsertID, nil
+	return r.lastInsertID, r.err
 }
 
 func (r *CustomResult) RowsAffected() (int64, error) {
@@ -51,19 +53,22 @@ func TestNew(t *testing.T) {
 func TestCreate(t *testing.T) {
 	testCase := []testCase{
 		{
-			name: "Testcase #1: Positive", wantError: nil, wantAttendeeError: nil, isErr: false,
+			name: "Testcase #1: Positive", wantError: nil, wantAttendeeError: nil, wantIDError: nil, isErr: false, result: CustomResult{lastInsertID: 1, rowsAffected: 1, err: nil},
 		},
 		{
-			name: "Testcase #2: Negative", wantError: errFoo, wantAttendeeError: nil, isErr: true,
+			name: "Testcase #2: Negative", wantError: errFoo, wantAttendeeError: nil, wantIDError: nil, isErr: true, result: CustomResult{lastInsertID: 1, rowsAffected: 1, err: nil},
 		},
 		{
-			name: "Testcase #3: Negative", wantError: nil, wantAttendeeError: errFoo, isErr: true,
+			name: "Testcase #3: Negative", wantError: nil, wantAttendeeError: errFoo, wantIDError: nil, isErr: true, result: CustomResult{lastInsertID: 1, rowsAffected: 1, err: nil},
+		},
+		{
+			name: "Testcase #4: Negative", wantError: nil, wantAttendeeError: nil, wantIDError: errFoo, isErr: true, result: CustomResult{lastInsertID: 1, rowsAffected: 1, err: errFoo},
 		},
 	}
 	for _, tt := range testCase {
 		t.Run(tt.name, func(t *testing.T) {
 			mockRepo := mockRepo.IRepository{}
-			mockRepo.On("Create", mock.Anything, mock.Anything).Return(&CustomResult{lastInsertID: 1, rowsAffected: 1}, tt.wantError)
+			mockRepo.On("Create", mock.Anything, mock.Anything).Return(&tt.result, tt.wantError)
 			mockRepo.On("CreateAttendee", mock.Anything, mock.Anything).Return(tt.wantAttendeeError)
 
 			u := &Usecase{
@@ -73,8 +78,10 @@ func TestCreate(t *testing.T) {
 			_, err := u.Create(context.Background(), invitationPayload)
 			if tt.wantAttendeeError != nil {
 				assert.EqualValues(t, err, tt.wantAttendeeError)
-			} else {
+			} else if tt.wantError != nil {
 				assert.EqualValues(t, err, tt.wantError)
+			} else {
+				assert.EqualValues(t, err, tt.wantIDError)
 			}
 		})
 	}
