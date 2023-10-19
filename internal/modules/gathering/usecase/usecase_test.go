@@ -14,13 +14,17 @@ import (
 )
 
 type testCase struct {
-	name      string
-	wantError error
-	isErr     bool
+	name                   string
+	wantError, wantIDError error
+	isErr                  bool
+	result                 CustomResult
+	payload                model.Gathering
 }
 
 var (
+	scheduleAt, _    = time.Parse("2006-01-02 03:04:05", "2023-11-10 12:00:00")
 	errFoo           = errors.New("error")
+	errTime          = &time.ParseError{Layout: "2006-01-02 03:04:05", Value: "2023-11-10", LayoutElem: "03", ValueElem: "", Message: ""}
 	gatheringPayload = model.Gathering{
 		ID:           1,
 		Creator:      "John Doe",
@@ -29,17 +33,28 @@ var (
 		Location:     "Puncak",
 		ScheduleAt:   "2023-11-10 12:00:00",
 		MemberID:     1,
-		ScheduleAtDB: time.Now(),
+		ScheduleAtDB: scheduleAt,
+	}
+	gatheringPayloadFail = model.Gathering{
+		ID:           1,
+		Creator:      "John Doe",
+		Type:         "family",
+		Name:         "Family Gathering",
+		Location:     "Puncak",
+		ScheduleAt:   "2023-11-10",
+		MemberID:     1,
+		ScheduleAtDB: scheduleAt,
 	}
 )
 
 type CustomResult struct {
 	lastInsertID int64
 	rowsAffected int64
+	err          error
 }
 
 func (r *CustomResult) LastInsertId() (int64, error) {
-	return r.lastInsertID, nil
+	return r.lastInsertID, r.err
 }
 
 func (r *CustomResult) RowsAffected() (int64, error) {
@@ -56,23 +71,33 @@ func TestNew(t *testing.T) {
 func TestCreate(t *testing.T) {
 	testCase := []testCase{
 		{
-			name: "Testcase #1: Positive", wantError: nil, isErr: false,
+			name: "Testcase #1: Positive", wantError: nil, wantIDError: nil, isErr: false, result: CustomResult{lastInsertID: 1, rowsAffected: 1, err: nil}, payload: gatheringPayload,
 		},
 		{
-			name: "Testcase #2: Negative", wantError: errFoo, isErr: true,
+			name: "Testcase #2: Negative", wantError: errFoo, wantIDError: nil, isErr: false, result: CustomResult{lastInsertID: 1, rowsAffected: 1, err: nil}, payload: gatheringPayload,
+		},
+		{
+			name: "Testcase #3: Negative", wantError: errTime, wantIDError: nil, isErr: false, result: CustomResult{lastInsertID: 1, rowsAffected: 1, err: nil}, payload: gatheringPayloadFail,
+		},
+		{
+			name: "Testcase #4: Negative", wantError: nil, wantIDError: errFoo, isErr: true, result: CustomResult{lastInsertID: 1, rowsAffected: 1, err: errFoo}, payload: gatheringPayload,
 		},
 	}
 	for _, tt := range testCase {
 		t.Run(tt.name, func(t *testing.T) {
 			mockRepo := mockRepo.IRepository{}
-			mockRepo.On("Create", mock.Anything, mock.Anything).Return(&CustomResult{lastInsertID: 1, rowsAffected: 1}, tt.wantError)
+			mockRepo.On("Create", mock.Anything, mock.Anything).Return(&tt.result, tt.wantError)
 
 			u := &Usecase{
 				repo: &mockRepo,
 			}
 
-			_, err := u.Create(context.Background(), gatheringPayload)
-			assert.EqualValues(t, err, tt.wantError)
+			_, err := u.Create(context.Background(), tt.payload)
+			if tt.isErr {
+				assert.EqualValues(t, err, tt.wantIDError)
+			} else {
+				assert.EqualValues(t, err, tt.wantError)
+			}
 		})
 	}
 }
