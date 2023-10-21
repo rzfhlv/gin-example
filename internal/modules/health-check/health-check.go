@@ -19,7 +19,7 @@ type HealthCheck struct {
 }
 
 func New(cfg *config.Config) *HealthCheck {
-	Repo := repository.New(cfg.MySQL)
+	Repo := repository.New(cfg.MySQL.GetDB())
 	Usecase := usecase.New(Repo)
 	Handler := handler.New(Usecase)
 

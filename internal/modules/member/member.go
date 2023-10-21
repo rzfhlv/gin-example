@@ -21,7 +21,7 @@ type Member struct {
 }
 
 func New(cfg *config.Config) *Member {
-	Repo := repository.New(cfg.MySQL)
+	Repo := repository.New(cfg.MySQL.GetDB())
 	Usecase := usecase.New(Repo, cfg.Pkg.Hasher)
 	Handler := handler.New(Usecase)
 
