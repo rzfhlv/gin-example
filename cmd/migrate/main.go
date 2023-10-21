@@ -43,7 +43,7 @@ func main() {
 	}
 
 	appConf := config.Init()
-	appDb := appConf.MySQL.DB
+	appDb := appConf.MySQL.GetDB()
 
 	defer appDb.Close()
 
@@ -51,7 +51,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := goose.Run(command, appDb, *dir, args[1:]...); err != nil {
+	if err := goose.Run(command, appDb.DB, *dir, args[1:]...); err != nil {
 		log.Fatalf("migrate run: %v", err)
 	}
 }
