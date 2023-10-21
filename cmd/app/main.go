@@ -19,7 +19,6 @@ import (
 
 func main() {
 	cfg := config.Init()
-	defer cfg.MySQL.Close()
 
 	svc := internal.New(cfg)
 
@@ -42,7 +41,13 @@ func main() {
 	log.Println("Shutdown Server ...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+
+	defer func() {
+		cfg.MySQL.Close()
+		cfg.Redis.Close()
+		cancel()
+	}()
+
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal("Server Shutdown Error:", err)
 	}
