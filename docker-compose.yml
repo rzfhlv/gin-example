@@ -43,6 +43,18 @@ services:
       - "${DB_PORT_CLIENT}:${DB_PORT_CLIENT}"
     networks:
       - gin
+  
+  redis:
+    container_name: gin-redis
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - "${REDIS_PORT}:6379"
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - ~/data/db/redis/gin:/data
+    networks:
+      - gin
 
 networks:
   gin:
