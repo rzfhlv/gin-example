@@ -3,6 +3,8 @@ package routes
 import (
 	"testing"
 
+	aMySQL "github.com/rzfhlv/gin-example/adapter/mysql"
+	aRedis "github.com/rzfhlv/gin-example/adapter/redis"
 	"github.com/rzfhlv/gin-example/config"
 	"github.com/rzfhlv/gin-example/internal"
 	"github.com/rzfhlv/gin-example/internal/modules/gathering"
@@ -13,8 +15,11 @@ import (
 )
 
 func TestRoutes(t *testing.T) {
+	mySql := aMySQL.MySQL{}
+	redis := aRedis.Redis{}
 	cfg := config.Config{
-		MySQL: nil,
+		MySQL: &mySql,
+		Redis: &redis,
 	}
 	service := internal.Service{
 		HealthCheck: healthcheck.New(&cfg),

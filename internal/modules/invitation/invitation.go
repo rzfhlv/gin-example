@@ -23,7 +23,7 @@ type Invitation struct {
 }
 
 func New(cfg *config.Config) *Invitation {
-	Repo := repository.New(cfg.MySQL)
+	Repo := repository.New(cfg.MySQL.GetDB())
 	Usecase := usecase.New(Repo)
 	Handler := handler.New(Usecase)
 

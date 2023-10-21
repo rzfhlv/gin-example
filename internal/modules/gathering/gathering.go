@@ -22,7 +22,7 @@ type Gathering struct {
 }
 
 func New(cfg *config.Config) *Gathering {
-	Repo := repository.New(cfg.MySQL)
+	Repo := repository.New(cfg.MySQL.GetDB())
 	Usecase := usecase.New(Repo)
 	Handler := handler.New(Usecase)
 
