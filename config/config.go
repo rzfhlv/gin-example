@@ -3,7 +3,9 @@ package config
 import (
 	"log"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
 	aMySQL "github.com/rzfhlv/gin-example/adapter/mysql"
 	aRedis "github.com/rzfhlv/gin-example/adapter/redis"
 	"github.com/rzfhlv/gin-example/pkg/hasher"
@@ -11,8 +13,8 @@ import (
 )
 
 type Config struct {
-	MySQL *aMySQL.MySQL
-	Redis *aRedis.Redis
+	MySQL *sqlx.DB
+	Redis *redis.Client
 	Pkg   Pkg
 }
 
@@ -41,8 +43,8 @@ func Init() *Config {
 	jwtImpl := pJwt.JWTImpl{}
 
 	return &Config{
-		MySQL: mySql,
-		Redis: redis,
+		MySQL: mySql.GetDB(),
+		Redis: redis.GetClient(),
 		Pkg: Pkg{
 			Hasher:  &hasher,
 			JWTImpl: &jwtImpl,

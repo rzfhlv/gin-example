@@ -24,7 +24,7 @@ type User struct {
 }
 
 func New(cfg *config.Config) *User {
-	Repo := repository.New(cfg.MySQL.GetDB(), cfg.Redis.GetClient())
+	Repo := repository.New(cfg.MySQL, cfg.Redis)
 	Usecase := usecase.New(Repo, cfg.Pkg.Hasher, cfg.Pkg.JWTImpl)
 	Handler := handler.New(Usecase)
 

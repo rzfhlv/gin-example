@@ -45,9 +45,3 @@ func New() (*Redis, error) {
 func (r *Redis) GetClient() *redis.Client {
 	return r.client
 }
-
-func (r *Redis) Close() {
-	if r.client != nil {
-		r.client.Close()
-	}
-}
