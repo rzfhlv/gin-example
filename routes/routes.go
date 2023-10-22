@@ -16,9 +16,9 @@ func ListRoutes(svc *internal.Service) (g *gin.Engine) {
 	route := g.Group("/v1")
 
 	healthcheck.Mount(route, svc.HealthCheck.Handler)
-	member.Mount(route, svc.Member.Handler)
-	gathering.Mount(route, svc.Gathering.Handler)
-	invitation.Mount(route, svc.Invitation.Handler)
+	member.Mount(route, svc.Member.Handler, svc.Middleware.Auth)
+	gathering.Mount(route, svc.Gathering.Handler, svc.Middleware.Auth)
+	invitation.Mount(route, svc.Invitation.Handler, svc.Middleware.Auth)
 	user.Mount(route, svc.User.Handler, svc.Middleware.Auth)
 	return
 }
