@@ -19,6 +19,6 @@ func ListRoutes(svc *internal.Service) (g *gin.Engine) {
 	member.Mount(route, svc.Member.Handler)
 	gathering.Mount(route, svc.Gathering.Handler)
 	invitation.Mount(route, svc.Invitation.Handler)
-	user.Mount(route, svc.User.Handler)
+	user.Mount(route, svc.User.Handler, svc.Middleware.Auth)
 	return
 }

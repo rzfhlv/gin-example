@@ -6,15 +6,16 @@ import (
 	"github.com/rzfhlv/gin-example/internal/modules/user/handler"
 	"github.com/rzfhlv/gin-example/internal/modules/user/repository"
 	"github.com/rzfhlv/gin-example/internal/modules/user/usecase"
+	"github.com/rzfhlv/gin-example/middleware/auth"
 )
 
-func Mount(route *gin.RouterGroup, h handler.IHandler) (g *gin.RouterGroup) {
+func Mount(route *gin.RouterGroup, h handler.IHandler, a auth.IAuth) (g *gin.RouterGroup) {
 	g = route.Group("/users")
 	g.POST("/register", h.Register)
 	g.POST("/login", h.Login)
-	g.POST("/logout", h.Logout)
-	g.GET("", h.GetAll)
-	g.GET("/:id", h.GetByID)
+	g.POST("/logout", a.Bearer(), h.Logout)
+	g.GET("", a.Bearer(), h.GetAll)
+	g.GET("/:id", a.Bearer(), h.GetByID)
 	return
 }
 

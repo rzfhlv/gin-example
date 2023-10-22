@@ -38,7 +38,7 @@ services:
       MYSQL_PASSWORD: "${DB_PASSWORD}"
     restart: always
     volumes:
-      - ~/data/gin:/var/lib/mysql
+      - ~/data/db/mysql/gin:/var/lib/mysql
     ports:
       - "${DB_PORT_CLIENT}:${DB_PORT_CLIENT}"
     networks:

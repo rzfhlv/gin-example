@@ -11,6 +11,7 @@ import (
 	healthcheck "github.com/rzfhlv/gin-example/internal/modules/health-check"
 	"github.com/rzfhlv/gin-example/internal/modules/invitation"
 	"github.com/rzfhlv/gin-example/internal/modules/member"
+	"github.com/rzfhlv/gin-example/internal/modules/user"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -26,6 +27,7 @@ func TestRoutes(t *testing.T) {
 		Member:      member.New(&cfg),
 		Gathering:   gathering.New(&cfg),
 		Invitation:  invitation.New(&cfg),
+		User:        user.New(&cfg),
 	}
 	r := ListRoutes(&service)
 	assert.NotNil(t, r)
