@@ -43,7 +43,7 @@ func main() {
 	}
 
 	appConf := config.Init()
-	appDb := appConf.MySQL.GetDB()
+	appDb := appConf.MySQL
 
 	defer appDb.Close()
 

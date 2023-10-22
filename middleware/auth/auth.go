@@ -39,7 +39,7 @@ type Auth struct {
 
 func New(cfg *config.Config) IAuth {
 	return &Auth{
-		redis:   cfg.Redis.GetClient(),
+		redis:   cfg.Redis,
 		jwtImpl: cfg.Pkg.JWTImpl,
 	}
 }

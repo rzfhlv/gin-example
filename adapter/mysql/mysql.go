@@ -44,9 +44,3 @@ func New() (*MySQL, error) {
 func (m *MySQL) GetDB() *sqlx.DB {
 	return m.db
 }
-
-func (m *MySQL) Close() {
-	if m.db != nil {
-		m.db.Close()
-	}
-}
