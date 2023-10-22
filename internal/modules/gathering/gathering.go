@@ -6,10 +6,12 @@ import (
 	"github.com/rzfhlv/gin-example/internal/modules/gathering/handler"
 	"github.com/rzfhlv/gin-example/internal/modules/gathering/repository"
 	"github.com/rzfhlv/gin-example/internal/modules/gathering/usecase"
+	"github.com/rzfhlv/gin-example/middleware/auth"
 )
 
-func Mount(route *gin.RouterGroup, h handler.IHandler) (g *gin.RouterGroup) {
+func Mount(route *gin.RouterGroup, h handler.IHandler, a auth.IAuth) (g *gin.RouterGroup) {
 	g = route.Group("/gatherings")
+	g.Use(a.Bearer())
 	g.GET("", h.Get)
 	g.GET("/:id", h.GetByID)
 	g.POST("", h.Create)

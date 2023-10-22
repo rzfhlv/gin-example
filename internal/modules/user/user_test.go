@@ -27,6 +27,11 @@ func TestNew(t *testing.T) {
 func TestMount(t *testing.T) {
 	mockHandler := mockHandler.IHandler{}
 	mockAuth := mockAuth.IAuth{}
+	mockAuth.On("Bearer").Return(func() gin.HandlerFunc {
+		return func(c *gin.Context) {
+			c.Next()
+		}
+	})
 
 	g := gin.Default()
 	route := g.Group("/v1")
