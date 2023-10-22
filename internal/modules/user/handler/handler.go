@@ -90,7 +90,7 @@ func (h *Handler) Logout(g *gin.Context) {
 
 	value, ok := g.Get("username")
 	if !ok {
-		log.Print("Error Get Context Username")
+		log.Printf("Error Get Context Username %v and %v", value, ok)
 		g.JSON(http.StatusUnauthorized, response.Set(message.ERROR, message.UNAUTHORIZED, nil, nil))
 		return
 	}

@@ -7,6 +7,7 @@ import (
 	"github.com/rzfhlv/gin-example/internal/modules/invitation"
 	"github.com/rzfhlv/gin-example/internal/modules/member"
 	"github.com/rzfhlv/gin-example/internal/modules/user"
+	"github.com/rzfhlv/gin-example/middleware"
 )
 
 type Service struct {
@@ -15,6 +16,7 @@ type Service struct {
 	Gathering   *gathering.Gathering
 	Invitation  *invitation.Invitation
 	User        *user.User
+	Middleware  *middleware.Middleware
 }
 
 func New(cfg *config.Config) *Service {
@@ -24,11 +26,14 @@ func New(cfg *config.Config) *Service {
 	invitation := invitation.New(cfg)
 	user := user.New(cfg)
 
+	middleware := middleware.New(cfg)
+
 	return &Service{
 		HealthCheck: healthCheck,
 		Member:      member,
 		Gathering:   gathering,
 		Invitation:  invitation,
 		User:        user,
+		Middleware:  middleware,
 	}
 }

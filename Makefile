@@ -7,6 +7,7 @@ down:
 mocks:
 	@mockery --all --keeptree --dir=internal/modules --output=shared/mocks/modules --case underscore
 	@mockery --all --keeptree --dir=pkg --output=shared/mocks/pkg --case underscore
+	@mockery --all --keeptree --dir=middleware --output=shared/mocks/middleware --case underscore
 
 test:
 	@echo "\x1b[32;1m>>> running unit test and calculate coverage\x1b[0m"
