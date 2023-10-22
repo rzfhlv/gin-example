@@ -10,7 +10,7 @@ var (
 	GetUserQuery = `SELECT id, username,
 		email, created_at
 		FROM users ORDER BY id DESC LIMIT ? OFFSET ?;`
-	GetUserByIDQuery = `SELECT id, username
+	GetUserByIDQuery = `SELECT id, username,
 		email, created_at
 		FROM users WHERE id = ?;`
 	CountUserQuery = `SELECT count(*)

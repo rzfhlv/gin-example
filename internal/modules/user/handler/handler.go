@@ -102,7 +102,7 @@ func (h *Handler) Logout(g *gin.Context) {
 		return
 	}
 
-	g.JSON(http.StatusNoContent, response.Set(message.SUCCESS, message.OK, nil, nil))
+	g.JSON(http.StatusOK, response.Set(message.SUCCESS, message.OK, nil, nil))
 }
 
 func (h *Handler) GetAll(g *gin.Context) {
